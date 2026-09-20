@@ -89,8 +89,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    base_url = os.environ.get("SEARXNG_URL", "http://localhost:8080").rstrip("/")
-    if base_url not in {"http://localhost:8080", "http://127.0.0.1:8888"}:
+    base_url = os.environ.get("SEARXNG_URL", "http://localhost:8081").rstrip("/")
+    if base_url not in {"http://localhost:8081", "http://127.0.0.1:8888"}:
         print(f"Unsupported SEARXNG_URL: {base_url}", file=sys.stderr)
         return 2
 
