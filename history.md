@@ -282,7 +282,7 @@ Tavily keyless接続を削除し、IssueごとのGitHub Actions実行中だけ�
 - SearXNG公式コンテナーイメージをSHA-256ダイジェストで固定
 - SearXNGのポート`8080`をActionsホストへ公開
 - Agent Workflow Firewallの`docker-sudo-iptables`ランタイムを使用
-- サンドボックスから`host.docker.internal:8080`経由でSearXNGへ接続
+- サンドボックスから`localhost:8080`経由でSearXNGへ接続
 - Actions実行ごとにSearXNG用の一時的なsecret keyを生成
 - SearXNGの公開インスタンス機能とリミッターを無効化
 - エージェント開始前にSearXNGの起動完了を確認
@@ -296,6 +296,12 @@ scripts/searxng_search.py
 ```
 
 このヘルパーは、ワークフロー内のSearXNGへ検索リクエストを送り、HTML結果を解析してタイトル、URL、概要をMarkdownまたはJSONで出力します。
+
+### SearXNG接続先を修正
+
+GitHub Actionsのサービスコンテナーへ接続できるよう、ワークフローと検索ヘルパーのSearXNG接続先を`http://localhost:8080`へ統一しました。
+
+検索ヘルパーの許可URLにも`http://localhost:8080`を設定しました。
 
 ### レポート構成の表示順を変更
 

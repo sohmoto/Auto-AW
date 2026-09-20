@@ -16,7 +16,7 @@ engine: copilot
 timeout-minutes: 30
 
 env:
-  SEARXNG_URL: "http://host.docker.internal:8080"
+  SEARXNG_URL: "http://localhost:8080"
 
 network:
   allowed:
