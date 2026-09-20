@@ -415,6 +415,7 @@ jobs:
           SEARXNG_PUBLIC_INSTANCE: "false"
           SEARXNG_SECRET: auto-aw-${{ github.run_id }}
         image: ghcr.io/searxng/searxng@sha256:b9e2ccc656e47468259b54d9a0876aece56dacd5abf6295162e9f109dca5160e
+        options: --health-cmd "wget -q --spider http://localhost:8080/ || exit 1" --health-interval 5s --health-timeout 5s --health-retries 12
         ports:
           - 8081:8080
     permissions:
