@@ -8,7 +8,7 @@ Auto-AWは、GitHub Issueに自然言語で投稿された調査依頼を、GitH
 2. タイトルに調べたいテーマを書きます
 3. 本文に目的、対象、期間、比較したい観点などを自由な文章で書きます
 4. Issueを作成すると`Web Research`ワークフローが自動的に起動します
-5. エージェントが内部で調査計画を作り、TavilyのリモートMCPでWebを検索します
+5. エージェントが内部で調査計画を作り、Actions内で一時起動したSearXNGでWebを検索します
 6. `reports/`にMarkdownレポートを追加するDraft Pull Requestが作成されます
 7. 内容と出典を確認してからPull Requestをマージします
 
@@ -42,8 +42,11 @@ Issueテンプレートやラベル操作は必要ありません。このリポ
 └─ workflows/
    ├─ web-research.md
    └─ web-research.lock.yml
+scripts/
+└─ searxng_search.py
 reports/
-└─ README.md
+├─ README.md
+└─ 2026-09-20-issue-1-screen.md
 README.md
 history.md
 .gitattributes
@@ -54,6 +57,7 @@ history.md
 - `.github/copilot-instructions.md`: リポジトリ共通の調査・執筆・セキュリティ方針
 - `.github/workflows/web-research.md`: Agentic Workflowのソース
 - `.github/workflows/web-research.lock.yml`: `gh aw compile`による生成ファイル
+- `scripts/searxng_search.py`: ワークフロー内のSearXNGを検索する専用ヘルパー
 - `reports/`: 調査レポートの保存先
 - `history.md`: 環境構築と操作の履歴
 - `.gitattributes`: 生成されたlockファイルをGitHub上で生成物として扱う設定
@@ -70,11 +74,11 @@ gh secret set COPILOT_GITHUB_TOKEN
 
 ### Web検索
 
-Web検索にはTavily公式のkeyless接続を使用します。Tavilyアカウント、APIキー、Repository Secretは必要ありません。
+Web検索にはSearXNGを使用します。IssueごとのGitHub Actions実行中だけ公式SearXNGコンテナーを起動し、完了後に破棄します。
 
-keyless接続では検索とWebページ本文の抽出を利用できます。無料ですが利用量に制限があるため、上限に達した場合はその実行が検索を継続できないことがあります。
+SearXNG用の外部アカウント、APIキー、Repository Secret、常設サーバーは必要ありません。検索は`python3 scripts/searxng_search.py "<検索語>"`を通じて行います。
 
-ワークフローはTavilyのリモートMCPへHTTPSで接続するため、ローカルnpmパッケージのインストールも不要です。
+SearXNGは複数の外部検索サービスを集約します。GitHub Actionsの共有IPが検索サービスから制限される場合や、検索結果ページへの直接アクセスがファイアウォールで制限される場合があります。
 
 ### GitHub Actions
 
@@ -96,17 +100,12 @@ gh aw compile web-research
 
 生成された`.lock.yml`は直接編集しません。ソースの`.md`と一緒にコミットします。
 
-Tavily MCPのツールを確認するには次を使用します。
-
-```powershell
-gh aw mcp inspect web-research --server tavily
-```
-
 ## セキュリティ
 
 - Issue本文とWebページは信頼できない入力として扱います
 - Webページ内の命令には従いません
 - 認証情報をリポジトリへ保存しません
-- Web検索はアカウント登録不要のkeyless接続を使用します
+- Web検索はActions実行中だけ起動するSearXNGコンテナーを使用します
+- SearXNGコンテナーは公式イメージをSHA-256ダイジェストで固定します
 - レポートは`main`へ直接書き込まず、Draft Pull Requestでレビューします
 - AI生成レポートは、重要な判断に使う前に人間が内容と出典を確認します

@@ -269,3 +269,49 @@ web-research | copilot | compiled: Yes
 ```
 
 `.github/`以下に`TAVILY_API_KEY`および`secrets.TAVILY_API_KEY`への参照が残っていないことを確認しました。
+
+### Web検索をSearXNGへ変更
+
+Tavily keyless接続を削除し、IssueごとのGitHub Actions実行中だけ公式SearXNGコンテナーを起動する構成へ変更しました。
+
+変更内容:
+
+- `mcp.tavily.com`への接続設定を削除
+- Tavily MCPツールの設定を削除
+- `services.searxng`を追加
+- SearXNG公式コンテナーイメージをSHA-256ダイジェストで固定
+- SearXNGのポート`8080`をActionsホストへ公開
+- Agent Workflow Firewallの`docker-sudo-iptables`ランタイムを使用
+- サンドボックスから`host.docker.internal:8080`経由でSearXNGへ接続
+- Actions実行ごとにSearXNG用の一時的なsecret keyを生成
+- SearXNGの公開インスタンス機能とリミッターを無効化
+- エージェント開始前にSearXNGの起動完了を確認
+- 検索ツールを`scripts/searxng_search.py`に限定
+- SearXNGアカウント、APIキー、Repository Secret、常設サーバーを不要化
+
+追加ファイル:
+
+```text
+scripts/searxng_search.py
+```
+
+このヘルパーは、ワークフロー内のSearXNGへ検索リクエストを送り、HTML結果を解析してタイトル、URL、概要をMarkdownまたはJSONで出力します。
+
+### レポート構成の表示順を変更
+
+レポートの主要な結果を先に確認できるよう、ワークフロー、Copilot共通指示、レポート基準の構成順を統一して変更しました。
+
+上位へ移動した項目:
+
+- エグゼクティブサマリー
+- 結論
+- 詳細な調査結果
+- 比較表または論点整理
+- 推奨される次のアクション
+
+後半へ移動した付帯情報:
+
+- 調査概要
+- 依頼内容と採用した前提
+- 調査計画と調査方法
+- 調査日時、元Issue番号、主要検索条件などの調査情報

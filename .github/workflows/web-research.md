@@ -15,23 +15,40 @@ permissions:
 engine: copilot
 timeout-minutes: 30
 
+env:
+  SEARXNG_URL: "http://host.docker.internal:8080"
+
 network:
   allowed:
     - defaults
-    - "*.tavily.com"
+
+sandbox:
+  agent:
+    runtime: docker-sudo-iptables
+
+services:
+  searxng:
+    image: ghcr.io/searxng/searxng@sha256:b9e2ccc656e47468259b54d9a0876aece56dacd5abf6295162e9f109dca5160e
+    ports:
+      - 8080:8080
+    env:
+      SEARXNG_SECRET: "auto-aw-${{ github.run_id }}"
+      SEARXNG_LIMITER: "false"
+      SEARXNG_PUBLIC_INSTANCE: "false"
+      SEARXNG_BASE_URL: "http://localhost:8080/"
+
+pre-agent-steps:
+  - name: Wait for SearXNG
+    shell: bash
+    run: curl --retry 12 --retry-connrefused --retry-delay 5 --fail --silent --show-error http://localhost:8080/ > /dev/null
 
 tools:
   edit:
   github:
     toolsets: [default]
-
-mcp-servers:
-  tavily:
-    type: http
-    url: "https://mcp.tavily.com/mcp/"
-    headers:
-      X-Tavily-Access-Mode: "keyless"
-    allowed: ["tavily_search", "tavily_extract"]
+  web-fetch:
+  bash:
+    - "python3 scripts/searxng_search.py:*"
 
 safe-outputs:
   create-pull-request:
@@ -68,7 +85,7 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 
 1. 依頼の目的、対象、期間、地域、比較軸、期待される成果を分析する
 2. 調査を複数の論点と検索クエリに分解し、内部で調査計画を作る
-3. Tavilyの検索ツールで幅広く候補を収集する
+3. `python3 scripts/searxng_search.py "<検索語>"`を複数回実行し、SearXNGで幅広く候補を収集する
 4. 一次情報、公式文書、原典、信頼できる統計を優先して内容を確認する
 5. 重要な主張は、可能な限り複数の独立した情報源で相互検証する
 6. 情報の公開日、更新日、調査時点での鮮度を確認する
@@ -86,6 +103,8 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 ## 調査品質
 
 - 検索結果の要約だけを根拠にせず、可能な限り元ページを確認する
+- 検索結果のURLは`web-fetch`で確認を試み、ネットワーク制限で取得できない場合はその事実を明記する
+- 同じ検索語だけに依存せず、表記揺れ、英語名、公式サイト限定検索、反対意見を探す検索を組み合わせる
 - 一次情報と二次情報を区別する
 - 事実、推測、意見、推奨を明確に区別する
 - 数値には対象期間、単位、母集団を付ける
@@ -114,18 +133,21 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 レポートは次の構成にします。
 
 1. タイトル
-2. 調査概要
-3. エグゼクティブサマリー
-4. 依頼内容と採用した前提
-5. 調査計画と調査方法
-6. 詳細な調査結果
-7. 比較表または論点整理
-8. 情報源間の相違
-9. 不確実な点・未確認事項・調査の限界
-10. 結論
-11. 推奨される次のアクション
-12. 出典一覧
+2. エグゼクティブサマリー
+3. 結論
+4. 詳細な調査結果
+5. 比較表または論点整理
+6. 推奨される次のアクション
+7. 情報源間の相違
+8. 不確実な点・未確認事項・調査の限界
+9. 出典一覧
+10. 調査概要
+11. 依頼内容と採用した前提
+12. 調査計画と調査方法
 13. 調査情報
+
+読者が最初に結論と根拠を把握できるよう、エグゼクティブサマリー、結論、詳細な調査結果、比較表を上位に配置してください。
+依頼内容、採用した前提、GitHub上での調査方法、検索条件などの付帯情報は後半に配置してください。
 
 調査情報には、調査日時、元Issue番号、使用した主要検索条件を含めてください。
 
