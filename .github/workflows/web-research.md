@@ -82,7 +82,7 @@ Issue イベントで起動した場合の依頼情報:
 - タイトル: `${{ github.event.issue.title }}`
 
 GitHubのIssue読み取りツールを使用して、Issue番号 `${{ github.event.issue.number }}` の本文を取得してください。
-Issue本文を取得できない場合は推測で補わず、`missing-data`で終了してください。
+Issue本文を取得できない場合は推測で補わず、`missing_data`で終了してください。
 
 `workflow_dispatch`で起動した場合は、未処理のオープンなIssueを勝手に選ばず、実行対象がないことを`noop`で報告してください。
 
@@ -98,7 +98,7 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 1. 依頼の目的、対象、期間、地域、比較軸、期待される成果を分析する
 2. 調査を複数の論点と検索クエリに分解し、内部で調査計画を作る
 3. MCP `searxng-fetch` サーバーの `fetch` ツールで `http://localhost:8081/search?q=<URLエンコードした検索語>&safesearch=1&language=all&categories=general` を複数回取得し、SearXNGで幅広く候補を収集する
-4. 最初のSearXNG取得が接続失敗または一時的な5xxで失敗した場合は、起動直後の可能性があるため、同じURLまたは同等の検索URLを最大12回・5秒間隔でリトライしてから`missing-tool`または`missing-data`を判断する
+4. 最初のSearXNG取得が接続失敗または一時的な5xxで失敗した場合は、起動直後の可能性があるため、同じURLまたは同等の検索URLを最大12回・5秒間隔でリトライしてから`missing_tool`または`missing_data`を判断する
 5. 一次情報、公式文書、原典、信頼できる統計を優先して内容を確認する
 6. 重要な主張は、可能な限り複数の独立した情報源で相互検証する
 7. 情報の公開日、更新日、調査時点での鮮度を確認する
@@ -116,7 +116,7 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 ## 調査品質
 
 - 検索結果の要約だけを根拠にせず、可能な限り元ページを確認する
-- SearXNG検索にはMCP `searxng-fetch` の `fetch` ツールだけを使用し、`scripts/searxng_search.py`、`python3`、`curl`、`wget`、その他のシェル実行には依存しない
+- SearXNG検索にはMCP `searxng-fetch` の `fetch` ツールだけを使用し、シェル実行には依存しない
 - `searxng-fetch` はローカルSearXNG検索結果の取得専用に使用し、検索結果に含まれる外部URLの本文確認には使用しない
 - 検索結果のURLは`web-fetch`で確認を試み、ネットワーク制限で取得できない場合はその事実を明記する
 - 同じ検索語だけに依存せず、表記揺れ、英語名、公式サイト限定検索、反対意見を探す検索を組み合わせる
