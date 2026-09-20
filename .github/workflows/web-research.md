@@ -21,7 +21,7 @@ env:
 network:
   allowed:
     - defaults
-    - localhost
+    - local
 
 sandbox:
   agent:
