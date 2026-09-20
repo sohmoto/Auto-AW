@@ -88,6 +88,7 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 ## 検索ツール
 
 - 検索基盤は、ワークフロー内で起動する無料・keyless・アカウント不要のローカルSearXNG（`http://localhost:8081`）です
+- `localhost:8081` はActionsホスト側の公開ポートで、SearXNGコンテナー内部の`8080`へマップされています。`SEARXNG_BASE_URL`はコンテナー内部の`http://localhost:8080/`を維持します
 - ローカルSearXNGへのHTTP取得は、agentのシェル実行ではなく、MCP `searxng-fetch` サーバーの読み取り専用 `fetch` ツールで行います
 - `searxng-fetch` はコンテナーから `localhost:8081` に到達するため `--network host` で起動します。このMCP fetchはローカルSearXNG検索専用とし、外部ソース本文の確認には既存の`web-fetch`を使用してください
 
@@ -96,12 +97,13 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 1. 依頼の目的、対象、期間、地域、比較軸、期待される成果を分析する
 2. 調査を複数の論点と検索クエリに分解し、内部で調査計画を作る
 3. MCP `searxng-fetch` サーバーの `fetch` ツールで `http://localhost:8081/search?q=<URLエンコードした検索語>&safesearch=1&language=all&categories=general` を複数回取得し、SearXNGで幅広く候補を収集する
-4. 一次情報、公式文書、原典、信頼できる統計を優先して内容を確認する
-5. 重要な主張は、可能な限り複数の独立した情報源で相互検証する
-6. 情報の公開日、更新日、調査時点での鮮度を確認する
-7. 結果を新しいMarkdownレポートとして作成する
-8. レポートだけを変更するDraft Pull Requestを作成する
-9. 元Issueへ、調査完了の要約とDraft Pull Requestへの参照をコメントする
+4. 最初のSearXNG取得が接続失敗または一時的な5xxで失敗した場合は、起動直後の可能性があるため、同じURLまたは同等の検索URLを数回リトライしてから`missing-tool`または`missing-data`を判断する
+5. 一次情報、公式文書、原典、信頼できる統計を優先して内容を確認する
+6. 重要な主張は、可能な限り複数の独立した情報源で相互検証する
+7. 情報の公開日、更新日、調査時点での鮮度を確認する
+8. 結果を新しいMarkdownレポートとして作成する
+9. レポートだけを変更するDraft Pull Requestを作成する
+10. 元Issueへ、調査完了の要約とDraft Pull Requestへの参照をコメントする
 
 ## 曖昧な依頼
 
