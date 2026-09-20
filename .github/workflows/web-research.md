@@ -45,8 +45,8 @@ services:
 
 mcp-servers:
   searxng-fetch:
-    registry: "https://api.mcp.github.com/v0/servers/modelcontextprotocol/fetch"
-    container: "mcp/fetch@sha256:1a7a0996a565a0b8ca5c41b42830d4e5f334d33f851596bbd9debb2beedb22d3"
+    type: stdio
+    container: "mcp/fetch:latest"
     args:
       - "--network"
       - "host"
@@ -95,7 +95,7 @@ Issue本文を取得できない場合は推測で補わず、`missing_data`で�
 
 - 検索基盤は、ワークフロー内で起動する無料・keyless・アカウント不要のローカルSearXNG（`http://localhost:8081`）です
 - `localhost:8081` はActionsホスト側の公開ポートで、SearXNGコンテナー内部の`8080`へマップされています。`SEARXNG_BASE_URL`はコンテナー内部の`http://localhost:8080/`を維持します
-- `network.allowed` の `localhost` は、agent環境からワークフロー内のローカルSearXNGエンドポイントを扱う前提を明示するために維持します
+- `network.allowed` の `local` は、agent環境からワークフロー内のローカルSearXNGエンドポイントを扱う前提を明示するために維持します
 - MCP `searxng-fetch` コンテナーは `--network host` で起動し、runnerホスト上に公開された `localhost:8081` へ接続します。gh-awのMCPコンテナー起動方式を変更する場合は、実行前にこの到達性を確認してください
 - SearXNGはDocker service healthcheckで起動確認します。healthcheckの待機時間は、agent-facingなSearXNG取得リトライ時間の目安でもあります
 - 検索URLテンプレートは `http://localhost:8081/search?q=<URLエンコードした検索語>&safesearch=1&language=all&categories=general` です

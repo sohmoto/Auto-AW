@@ -321,3 +321,16 @@ GitHub Actionsのサービスコンテナーへ接続できるよう、ワーク
 - 依頼内容と採用した前提
 - 調査計画と調査方法
 - 調査日時、元Issue番号、主要検索条件などの調査情報
+
+### SearXNG用MCP Gateway設定を修正
+
+MCP Gateway v0.4.18の設定スキーマに合わせて、SearXNG検索結果を取得する`searxng-fetch`サーバーの設定を修正しました。
+
+変更内容:
+
+- MCPサーバーの形式を`type: stdio`として明示
+- Gatewayが受理しない`mcp/fetch@sha256:...`形式を`mcp/fetch:latest`へ変更
+- 実行時に不要な旧MCP Registry URLを削除
+- `--network host`をstdioコンテナーのDocker実行引数として維持
+- Agentic Workflowを再コンパイル
+- strict検証でエラーと警告がないことを確認

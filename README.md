@@ -57,7 +57,7 @@ history.md
 - `.github/copilot-instructions.md`: リポジトリ共通の調査・執筆・セキュリティ方針
 - `.github/workflows/web-research.md`: Agentic Workflowのソース
 - `.github/workflows/web-research.lock.yml`: `gh aw compile`による生成ファイル
-- `scripts/searxng_search.py`: ワークフロー内のSearXNGを検索する専用ヘルパー
+- `scripts/searxng_search.py`: SearXNG検索結果を解析する補助スクリプト。現在のワークフローはMCP Fetch経由で検索します
 - `reports/`: 調査レポートの保存先
 - `history.md`: 環境構築と操作の履歴
 - `.gitattributes`: 生成されたlockファイルをGitHub上で生成物として扱う設定
@@ -76,7 +76,7 @@ gh secret set COPILOT_GITHUB_TOKEN
 
 Web検索にはSearXNGを使用します。IssueごとのGitHub Actions実行中だけ公式SearXNGコンテナーを起動し、完了後に破棄します。
 
-SearXNG用の外部アカウント、APIキー、Repository Secret、常設サーバーは必要ありません。検索は`python3 scripts/searxng_search.py "<検索語>"`を通じて行います。
+SearXNG用の外部アカウント、APIキー、Repository Secret、常設サーバーは必要ありません。検索結果は、ホストネットワークで起動する読み取り専用のMCP Fetchサーバーを通じて取得します。
 
 SearXNGは複数の外部検索サービスを集約します。GitHub Actionsの共有IPが検索サービスから制限される場合や、検索結果ページへの直接アクセスがファイアウォールで制限される場合があります。
 
@@ -95,7 +95,8 @@ frontmatter、ツール、権限、safe outputsを変更した場合は、検証
 
 ```powershell
 gh aw validate web-research
-gh aw compile web-research
+gh aw compile web-research --approve
+gh aw validate web-research --strict
 ```
 
 生成された`.lock.yml`は直接編集しません。ソースの`.md`と一緒にコミットします。
