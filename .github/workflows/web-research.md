@@ -52,7 +52,8 @@ tools:
   github:
     toolsets: [default]
   web-fetch:
-  bash:
+  bash: []
+  cli-proxy: false
 
 safe-outputs:
   create-pull-request:
@@ -97,7 +98,7 @@ Issue本文を取得できない場合は推測で補わず、`missing-data`で�
 1. 依頼の目的、対象、期間、地域、比較軸、期待される成果を分析する
 2. 調査を複数の論点と検索クエリに分解し、内部で調査計画を作る
 3. MCP `searxng-fetch` サーバーの `fetch` ツールで `http://localhost:8081/search?q=<URLエンコードした検索語>&safesearch=1&language=all&categories=general` を複数回取得し、SearXNGで幅広く候補を収集する
-4. 最初のSearXNG取得が接続失敗または一時的な5xxで失敗した場合は、起動直後の可能性があるため、同じURLまたは同等の検索URLを数回リトライしてから`missing-tool`または`missing-data`を判断する
+4. 最初のSearXNG取得が接続失敗または一時的な5xxで失敗した場合は、起動直後の可能性があるため、同じURLまたは同等の検索URLを最大12回・5秒間隔でリトライしてから`missing-tool`または`missing-data`を判断する
 5. 一次情報、公式文書、原典、信頼できる統計を優先して内容を確認する
 6. 重要な主張は、可能な限り複数の独立した情報源で相互検証する
 7. 情報の公開日、更新日、調査時点での鮮度を確認する
