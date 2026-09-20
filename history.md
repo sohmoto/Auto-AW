@@ -334,3 +334,9 @@ MCP Gateway v0.4.18の設定スキーマに合わせて、SearXNG検索結果を
 - `--network host`をstdioコンテナーのDocker実行引数として維持
 - Agentic Workflowを再コンパイル
 - strict検証でエラーと警告がないことを確認
+
+### ローカルSearXNG検索のrobots.txt制限に対応
+
+SearXNG標準のrobots.txtが検索クエリを拒否するため、`searxng-fetch`のエントリーポイント引数に`--ignore-robots-txt`を追加しました。
+
+この設定は、同じGitHub Actions実行内で一時起動するローカルSearXNGの検索結果取得に限定しています。Docker実行引数の`--network host`とは分離して設定しました。

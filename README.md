@@ -76,7 +76,7 @@ gh secret set COPILOT_GITHUB_TOKEN
 
 Web検索にはSearXNGを使用します。IssueごとのGitHub Actions実行中だけ公式SearXNGコンテナーを起動し、完了後に破棄します。
 
-SearXNG用の外部アカウント、APIキー、Repository Secret、常設サーバーは必要ありません。検索結果は、ホストネットワークで起動する読み取り専用のMCP Fetchサーバーを通じて取得します。
+SearXNG用の外部アカウント、APIキー、Repository Secret、常設サーバーは必要ありません。検索結果は、ホストネットワークで起動する読み取り専用のMCP Fetchサーバーを通じて取得します。SearXNG標準のrobots.txtが検索クエリを拒否するため、このローカルSearXNGへの取得に限りMCP Fetchのrobots.txt確認を無効化します。
 
 SearXNGは複数の外部検索サービスを集約します。GitHub Actionsの共有IPが検索サービスから制限される場合や、検索結果ページへの直接アクセスがファイアウォールで制限される場合があります。
 

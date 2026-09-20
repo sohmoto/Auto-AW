@@ -50,6 +50,8 @@ mcp-servers:
     args:
       - "--network"
       - "host"
+    entrypointArgs:
+      - "--ignore-robots-txt"
     allowed: ["fetch"]
 
 tools:
@@ -97,6 +99,7 @@ Issue本文を取得できない場合は推測で補わず、`missing_data`で�
 - `localhost:8081` はActionsホスト側の公開ポートで、SearXNGコンテナー内部の`8080`へマップされています。`SEARXNG_BASE_URL`はコンテナー内部の`http://localhost:8080/`を維持します
 - `network.allowed` の `local` は、agent環境からワークフロー内のローカルSearXNGエンドポイントを扱う前提を明示するために維持します
 - MCP `searxng-fetch` コンテナーは `--network host` で起動し、runnerホスト上に公開された `localhost:8081` へ接続します。gh-awのMCPコンテナー起動方式を変更する場合は、実行前にこの到達性を確認してください
+- MCP Fetchの`--ignore-robots-txt`は、同じActions実行内で一時起動するローカルSearXNGの検索URLに限って使用します。外部サイトのrobots.txtを回避する目的では使用しないでください
 - SearXNGはDocker service healthcheckで起動確認します。healthcheckの待機時間は、agent-facingなSearXNG取得リトライ時間の目安でもあります
 - 検索URLテンプレートは `http://localhost:8081/search?q=<URLエンコードした検索語>&safesearch=1&language=all&categories=general` です
 - MCP `fetch` ツールには `url` 引数として検索URL全体を渡します。検索語はUTF-8でパーセントエンコードして、`q` パラメーターへ入れてください
