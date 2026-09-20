@@ -340,3 +340,17 @@ MCP Gateway v0.4.18の設定スキーマに合わせて、SearXNG検索結果を
 SearXNG標準のrobots.txtが検索クエリを拒否するため、`searxng-fetch`のエントリーポイント引数に`--ignore-robots-txt`を追加しました。
 
 この設定は、同じGitHub Actions実行内で一時起動するローカルSearXNGの検索結果取得に限定しています。Docker実行引数の`--network host`とは分離して設定しました。
+
+### SearXNG対応後のワークフロー正常終了を確認
+
+コミット`19dfd75bd68d10d36d96baf6928ee9e35fb8b503`を使用したGitHub Actions実行`35523728716`が正常終了したことを確認しました。
+
+成功を確認した処理:
+
+- Actionsジョブの起動
+- SearXNGサービスコンテナーを含むコンテナー初期化
+- MCP Gatewayと`searxng-fetch`の起動
+- GitHub Copilot CLIによるエージェント処理
+- Safe Outputsの処理
+- コンテナーの停止
+- `pre_activation`、`activation`、`agent`、`detection`、`safe_outputs`、`conclusion`の全ジョブ
