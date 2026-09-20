@@ -16,7 +16,7 @@ engine: copilot
 timeout-minutes: 30
 
 env:
-  SEARXNG_URL: "http://localhost:8080"
+  SEARXNG_URL: "http://localhost:8081"
 
 network:
   allowed:
@@ -30,7 +30,7 @@ services:
   searxng:
     image: ghcr.io/searxng/searxng@sha256:b9e2ccc656e47468259b54d9a0876aece56dacd5abf6295162e9f109dca5160e
     ports:
-      - 8080:8080
+      - 8081:8080
     env:
       SEARXNG_SECRET: "auto-aw-${{ github.run_id }}"
       SEARXNG_LIMITER: "false"
@@ -40,7 +40,7 @@ services:
 pre-agent-steps:
   - name: Wait for SearXNG
     shell: bash
-    run: curl --retry 12 --retry-connrefused --retry-delay 5 --fail --silent --show-error http://localhost:8080/ > /dev/null
+    run: curl --retry 12 --retry-connrefused --retry-delay 5 --fail --silent --show-error http://localhost:8081/ > /dev/null
 
 tools:
   edit:
