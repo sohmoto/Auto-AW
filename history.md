@@ -421,3 +421,33 @@ git diff --check
 ```
 
 両ワークフローのコンパイル、Actionlint、strict検証は、エラーと警告なしで成功しました。
+
+### Research Planningのタイムアウトを修正
+
+最初の`Research Planning`実行では、MCP Gateway、GitHub MCP Server、Safe Outputs MCP Serverは正常に起動していましたが、Copilot AgentにMCP CLIラッパーを実行する権限がありませんでした。
+
+AgentはIssue本文を取得できず、`gh`コマンドや利用可能なツールの探索を繰り返した結果、10分の実行上限に達してタイムアウトしました。MCPの`tools/call`は実行されておらず、認証、ネットワーク、MCP Gatewayの起動は原因ではありませんでした。
+
+`.github/workflows/research-plan.md`を次の方針で修正しました。
+
+- `cli-proxy`を有効化
+- シェル経由で許可するMCP CLIを`github:*`と`safeoutputs:*`に限定
+- `missing-tool` Safe Outputを追加
+- Issue取得には`github issue_read`を使用するよう明示
+- Issue取得ツールが利用できない場合は、`gh`コマンド、ネットワークコマンド、実行ファイル探索、別名ツールの試行を行わず、直ちに終了するよう明示
+
+`timeout-minutes`は10分のまま維持しました。タイムアウト時間の延長ではなく、Issue取得経路の修正と探索ループの防止を根本対策としています。
+
+`research-plan.lock.yml`を再生成し、Copilot CLIへ次の権限が生成されていることを確認しました。
+
+```text
+shell(github:*)
+shell(safeoutputs:*)
+```
+
+次の検証はエラーと警告なしで成功しました。
+
+```powershell
+gh aw compile research-plan --approve --actionlint
+gh aw validate research-plan --strict
+```

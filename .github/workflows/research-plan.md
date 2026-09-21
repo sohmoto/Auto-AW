@@ -17,8 +17,10 @@ timeout-minutes: 10
 tools:
   github:
     toolsets: [issues]
-  bash: []
-  cli-proxy: false
+  bash:
+    - "github:*"
+    - "safeoutputs:*"
+  cli-proxy: true
 
 safe-outputs:
   update-issue:
@@ -37,6 +39,7 @@ safe-outputs:
     max: 1
   noop:
   missing-data:
+  missing-tool:
 
 strict: true
 ---
@@ -51,8 +54,10 @@ strict: true
 - タイトル: `${{ github.event.issue.title }}`
 - Issue作成操作を行ったユーザー: `${{ github.actor }}`
 
-GitHubのIssue読み取りツールを使用して、Issue番号 `${{ github.event.issue.number }}` の最新の本文を取得してください。
+MCP CLIの`github issue_read`を使用して、Issue番号 `${{ github.event.issue.number }}` の最新の本文を取得してください。
 Issue本文を取得できない場合は推測で補わず、`missing_data`で終了してください。
+`github issue_read`が利用できない、権限で拒否される、または呼び出しに失敗した場合は、`gh`コマンド、ネットワークコマンド、実行ファイル探索、別のツール名を試さず、`missing_tool`で直ちに終了してください。
+Issue本文の取得とSafe Outputsには、許可された`github`および`safeoutputs`のMCP CLIだけを使用してください。
 
 このワークフローは計画作成専用です。Web検索、外部URLの取得、レポートファイルの作成、Pull Requestの作成は行わないでください。
 
