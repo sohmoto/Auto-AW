@@ -12,6 +12,7 @@ if: contains(github.event.issue.labels.*.name, 'research-plan-ready')
 
 permissions:
   contents: read
+  copilot-requests: write
   issues: read
   pull-requests: read
 

@@ -84,11 +84,9 @@ history.md
 
 ### Copilot認証
 
-個人のGitHub Copilotサブスクリプションを使用する場合は、Copilot Requestsへのアクセスを持つfine-grained PATをRepository Secretとして登録します。
+両Agentic Workflowは`copilot-requests: write`権限を宣言し、GitHub Actionsが実行ごとに発行する短期の`GITHUB_TOKEN`でCopilot CLIを認証します。Copilot認証用のfine-grained PATや`COPILOT_GITHUB_TOKEN` Repository Secretは必要ありません。
 
-```powershell
-gh secret set COPILOT_GITHUB_TOKEN
-```
+個人所有リポジトリでは、Copilot CLIのAI Creditsはリポジトリ所有者のCopilot seatへ紐づきます。Organization所有リポジトリでは、OrganizationのCopilotポリシーで「Allow use of Copilot CLI billed to the organization」を有効にしてください。
 
 ### Web検索
 

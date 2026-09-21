@@ -451,3 +451,34 @@ shell(safeoutputs:*)
 gh aw compile research-plan --approve --actionlint
 gh aw validate research-plan --strict
 ```
+
+### Copilot認証をActions標準のGITHUB_TOKENへ移行
+
+Copilot CLIがGitHub Actionsの組み込み`GITHUB_TOKEN`へ対応したため、長期のfine-grained PATをCopilot認証に使用しない構成へ変更しました。
+
+`research-plan.md`と`web-research.md`へ次の権限を追加しました。
+
+```yaml
+copilot-requests: write
+```
+
+この権限により、Copilot推論はActions実行ごとに発行される短期の`GITHUB_TOKEN`で認証されます。Issue操作とDraft Pull Request作成は、従来どおり最小権限とSafe Outputsで制御します。
+
+READMEから`COPILOT_GITHUB_TOKEN`へのfine-grained PAT登録手順を削除し、個人所有リポジトリとOrganization所有リポジトリの課金・ポリシー条件を記載しました。
+
+既存の`COPILOT_GITHUB_TOKEN` Repository Secretと元のfine-grained PATは、この変更をプッシュして新しいIssueで正常動作を確認するまで削除・失効しません。動作確認後にSecretを削除し、最後に元のPATを失効させます。
+
+両lockファイルを再生成し、Copilot CLIと脅威検出の認証が次のように生成されることを確認しました。
+
+```yaml
+COPILOT_GITHUB_TOKEN: ${{ github.token }}
+```
+
+`secrets.COPILOT_GITHUB_TOKEN`への参照は生成されていません。次のコンパイル、Actionlint、strict検証は、エラーと警告なしで成功しました。
+
+```powershell
+gh aw compile research-plan --approve --actionlint
+gh aw compile web-research --approve --actionlint
+gh aw validate research-plan --strict
+gh aw validate web-research --strict
+```
