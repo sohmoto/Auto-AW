@@ -482,3 +482,29 @@ gh aw compile web-research --approve --actionlint
 gh aw validate research-plan --strict
 gh aw validate web-research --strict
 ```
+
+### GITHUB_TOKEN移行後の実行確認
+
+移行コミット`814f753d843b1325ebf823c3f15c12166ad25902`を使用して、Issue #24「GitHub Copilot調査」でエンドツーエンドの動作確認を行いました。
+
+実行結果:
+
+- `Research Planning` run `35591140077`: success
+- `Web Research` run `35592131094`: success
+- 両runの`pre_activation`、`activation`、`agent`、`detection`、`unlock`、`safe_outputs`、`conclusion`: すべてsuccess
+- Issue #24: `research-plan-ready`と`research-approved`を経て正常にクローズ
+- Pull Request #25: 正常に作成され、`main`へマージ
+
+両runは`COPILOT_GITHUB_TOKEN: ${{ github.token }}`を生成するlockファイル上で実行されました。これにより、Repository Secretのfine-grained PATを使用せず、Actions標準の短期`GITHUB_TOKEN`だけで計画作成、本調査、脅威検出、Safe Outputsが完了することを確認しました。
+
+動作確認後、Repository Secretの`COPILOT_GITHUB_TOKEN`を削除しました。`gh secret list --repo akkoike/Auto-AW`でRepository Secretが0件であることを確認しました。元のfine-grained PATはGitHubアカウントのDeveloper settingsからユーザーが削除しました。
+
+### GitHub Copilot技術動向レポートを同期
+
+Pull Request #25で作成された次のレポートを、`origin/main`からローカル`main`へfast-forwardで同期しました。
+
+```text
+reports/2026-09-21-issue-24-github-copilot-trends.md
+```
+
+同期後のコミットは`7f4345133b8222e885fd0858197f29ecc0dbd4f4`で、ローカル`main`と`origin/main`が一致していることを確認しました。
