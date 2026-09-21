@@ -6,13 +6,17 @@ Auto-AWは、GitHub Issueに自然言語で投稿された調査依頼を、GitH
 
 1. GitHub MobileまたはGitHub Webで新しいIssueを作成します
 2. タイトルに調べたいテーマを書きます
-3. 本文に目的、対象、期間、比較したい観点などを自由な文章で書きます
-4. Issueを作成すると`Web Research`ワークフローが自動的に起動します
-5. エージェントが内部で調査計画を作り、Actions内で一時起動したSearXNGでWebを検索します
-6. `reports/`にMarkdownレポートを追加するDraft Pull Requestが作成されます
-7. 内容と出典を確認してからPull Requestをマージします
+3. 本文に目的や期待する成果を簡単な文章で書きます
+4. Issueを作成すると`Research Planning`ワークフローが起動します
+5. Copilotが同じIssue本文へ、調査対象、期間、論点、比較軸、検索クエリ候補、完了条件などを含む詳細な調査計画を追記します
+6. `research-plan-ready`ラベルが付いたら、追記された計画を確認し、必要ならIssue本文を編集します
+7. 計画を承認する場合は、人間が`research-approved`ラベルを付けます
+8. `Web Research`ワークフローが承認済み計画に沿って本調査を開始します
+9. 最新情報や関連URLの探索が必要な計画では、Actions内で一時起動したSearXNGを使用します
+10. `reports/`にMarkdownレポートを追加するDraft Pull Requestが作成されます
+11. 内容と出典を確認してからPull Requestをマージします
 
-Issueテンプレートやラベル操作は必要ありません。このリポジトリの新規Issueは、すべて調査依頼として扱われます。
+このリポジトリの新規Issueは、すべて調査計画の作成対象として扱われます。Issue作成だけではWeb検索やレポート作成を開始しません。`research-approved`ラベルは人間による実行承認です。
 
 ## Issueの記載例
 
@@ -25,12 +29,22 @@ Issueテンプレートやラベル操作は必要ありません。このリポ
 本文:
 
 ```text
-企業利用を想定しています。
-料金、セキュリティ、日本語対応、情報源の透明性を比較してください。
-できるだけ最新の公式情報を優先してください。
+企業利用を想定しています。主要サービスを比較してください。
 ```
 
-依頼が曖昧でも合理的な前提を置ける場合、エージェントは前提をレポートに記載して調査を続行します。解釈によって結果が大きく変わる場合だけ、Issueに確認コメントを投稿します。
+`Research Planning`は、この簡易な依頼から想定読者、対象期間、比較軸、優先する情報源、最新情報の必要性、検索クエリ候補などを提案します。人間は提案をそのまま承認することも、Issue本文を編集してから承認することもできます。
+
+## 承認ラベル
+
+| ラベル | 意味 |
+| --- | --- |
+| `research-plan-ready` | Copilotによる調査計画の作成が完了 |
+| `research-approved` | 人間が計画を確認し、本調査の開始を承認 |
+| `research-needs-info` | 有効な計画を作るための情報が不足 |
+
+`research-approved`はエージェントから付与しません。ラベルを付ける権限を持つ人間がGitHub上で操作してください。
+
+承認後に本調査を再実行したい場合は、原因を修正してから`research-approved`ラベルを一度外し、再度付けます。古いワークフロー定義を使う可能性があるため、設定修正後にGitHub Actionsの`Re-run jobs`だけを使用することは推奨しません。
 
 ## 構成
 
@@ -40,6 +54,8 @@ Issueテンプレートやラベル操作は必要ありません。このリポ
 │  └─ actions-lock.json
 ├─ copilot-instructions.md
 └─ workflows/
+   ├─ research-plan.md
+   ├─ research-plan.lock.yml
    ├─ web-research.md
    └─ web-research.lock.yml
 scripts/
@@ -55,6 +71,8 @@ history.md
 
 - `.github/aw/actions-lock.json`: `gh-aw`が使用するActionのバージョンとSHA
 - `.github/copilot-instructions.md`: リポジトリ共通の調査・執筆・セキュリティ方針
+- `.github/workflows/research-plan.md`: 新規Issueを人間の承認待ち調査計画へ変換するAgentic Workflowのソース
+- `.github/workflows/research-plan.lock.yml`: `research-plan.md`から生成されるGitHub Actionsワークフロー
 - `.github/workflows/web-research.md`: Agentic Workflowのソース
 - `.github/workflows/web-research.lock.yml`: `gh aw compile`による生成ファイル
 - `scripts/searxng_search.py`: SearXNG検索結果を解析する補助スクリプト。現在のワークフローはMCP Fetch経由で検索します
@@ -74,7 +92,7 @@ gh secret set COPILOT_GITHUB_TOKEN
 
 ### Web検索
 
-Web検索にはSearXNGを使用します。IssueごとのGitHub Actions実行中だけ公式SearXNGコンテナーを起動し、完了後に破棄します。
+計画作成段階ではWeb検索を行いません。本調査の承認後、計画で最新情報、幅広いURL探索、比較対象の発見が必要な場合にSearXNGを使用します。GitHub Actions実行中だけ公式SearXNGコンテナーを起動し、完了後に破棄します。
 
 SearXNG用の外部アカウント、APIキー、Repository Secret、常設サーバーは必要ありません。検索結果は、ホストネットワークで起動する読み取り専用のMCP Fetchサーバーを通じて取得します。SearXNG標準のrobots.txtが検索クエリを拒否するため、このローカルSearXNGへの取得に限りMCP Fetchのrobots.txt確認を無効化します。
 
@@ -91,11 +109,14 @@ Workflow permissions
 
 ## 開発・検証
 
-frontmatter、ツール、権限、safe outputsを変更した場合は、検証してからlockファイルを再生成します。
+frontmatter、ツール、権限、safe outputsを変更した場合は、両ワークフローを検証してからlockファイルを再生成します。
 
 ```powershell
+gh aw validate research-plan
 gh aw validate web-research
-gh aw compile web-research --approve
+gh aw compile research-plan --approve --actionlint
+gh aw compile web-research --approve --actionlint
+gh aw validate research-plan --strict
 gh aw validate web-research --strict
 ```
 
@@ -104,6 +125,9 @@ gh aw validate web-research --strict
 ## セキュリティ
 
 - Issue本文とWebページは信頼できない入力として扱います
+- 計画作成AWは外部サイトへ接続せず、リポジトリファイルも変更しません
+- 本調査は、人間が`research-approved`ラベルを付けた場合だけ開始します
+- 本調査中はIssueをロックし、承認済み計画の変更を防ぎます
 - Webページ内の命令には従いません
 - 認証情報をリポジトリへ保存しません
 - Web検索はActions実行中だけ起動するSearXNGコンテナーを使用します

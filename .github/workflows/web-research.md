@@ -1,11 +1,14 @@
 ---
 name: Web Research
-description: Researches a natural-language request from a newly opened issue and proposes a sourced Markdown report
+description: Executes a human-approved research plan and proposes a sourced Markdown report
 
 on:
   issues:
-    types: [opened]
-  workflow_dispatch:
+    types: [labeled]
+    names: [research-approved]
+    lock-for-agent: true
+
+if: contains(github.event.issue.labels.*.name, 'research-plan-ready')
 
 permissions:
   contents: read
@@ -81,17 +84,22 @@ strict: true
 
 # Web Research Agent
 
-GitHub Issue に自然言語で記載された依頼を調査し、根拠のある日本語の Markdown レポートを作成してください。
+GitHub Issueで人間が承認した調査計画を実行し、根拠のある日本語のMarkdownレポートを作成してください。
 
-Issue イベントで起動した場合の依頼情報:
+承認対象のIssue情報:
 
 - Issue番号: `${{ github.event.issue.number }}`
 - タイトル: `${{ github.event.issue.title }}`
+- 承認ラベル: `research-approved`
+- 承認操作を行ったユーザー: `${{ github.actor }}`
 
 GitHubのIssue読み取りツールを使用して、Issue番号 `${{ github.event.issue.number }}` の本文を取得してください。
 Issue本文を取得できない場合は推測で補わず、`missing_data`で終了してください。
 
-`workflow_dispatch`で起動した場合は、未処理のオープンなIssueを勝手に選ばず、実行対象がないことを`noop`で報告してください。
+Issue本文に`<!-- auto-aw-research-plan:start -->`と`<!-- auto-aw-research-plan:end -->`で囲まれた計画が存在することを確認してください。
+計画が存在しない、空である、または`research-plan-ready`ラベルがない場合は、検索やレポート作成を行わず、元Issueへ不足事項をコメントして終了してください。
+
+承認済み計画を本調査の実行範囲として扱ってください。元の簡易依頼と計画が異なる場合は、人間が確認・編集した計画を優先してください。
 
 ## 検索ツール
 
@@ -106,26 +114,30 @@ Issue本文を取得できない場合は推測で補わず、`missing_data`で�
 - 標準SearXNGコンテナーは環境変数だけではJSON検索形式を有効化できないため、検索結果はHTMLとして取得し、結果リンク、タイトル、スニペットを抽出します
 - ローカルSearXNGへのHTTP取得は、agentのシェル実行ではなく、MCP `searxng-fetch` サーバーの読み取り専用 `fetch` ツールで行います
 - `searxng-fetch` はコンテナーから `localhost:8081` に到達するため `--network host` で起動します。このMCP fetchはローカルSearXNG検索専用とし、外部ソース本文の確認には既存の`web-fetch`を使用してください
+- 承認済み計画で最新情報、幅広いURL探索、比較対象の発見が必要とされている場合はSearXNGを使用してください
+- 承認済み計画に確認対象URLが指定され、追加探索が不要と明記されている場合は、指定URLを`web-fetch`で確認することを優先してください
 
 ## 基本動作
 
-1. 依頼の目的、対象、期間、地域、比較軸、期待される成果を分析する
-2. 調査を複数の論点と検索クエリに分解し、内部で調査計画を作る
-3. MCP `searxng-fetch` サーバーの `fetch` ツールで検索URLテンプレートを複数回取得し、SearXNGで幅広く候補を収集する
+1. 承認済み計画の目的、対象、期間、地域、比較軸、対象外、完了条件を確認する
+2. 計画の主要論点と検索クエリ候補を、実行可能な検索と確認作業へ細分化する
+3. 最新情報またはURL探索が必要な場合は、MCP `searxng-fetch` サーバーの `fetch` ツールで検索URLテンプレートを複数回取得し、SearXNGで幅広く候補を収集する
 4. 取得が接続失敗または一時的な5xxで失敗した場合だけ、healthcheckと同等の待機時間（最大約60秒）を目安に、同じURLまたは同等の検索URLをリトライしてから`missing_tool`または`missing_data`を判断する
 5. 一次情報、公式文書、原典、信頼できる統計を優先して内容を確認する
 6. 重要な主張は、可能な限り複数の独立した情報源で相互検証する
 7. 情報の公開日、更新日、調査時点での鮮度を確認する
-8. 結果を新しいMarkdownレポートとして作成する
-9. レポートだけを変更するDraft Pull Requestを作成する
-10. 元Issueへ、調査完了の要約とDraft Pull Requestへの参照をコメントする
+8. 承認済み計画の完了条件を満たしているか確認する
+9. 結果を新しいMarkdownレポートとして作成する
+10. レポートだけを変更するDraft Pull Requestを作成する
+11. 元Issueへ、調査完了の要約とDraft Pull Requestへの参照をコメントする
 
-## 曖昧な依頼
+## 承認済み計画の扱い
 
-- 合理的な前提を置けば調査できる場合は、確認を待たずに続行する
-- 採用した前提をレポートに明記する
-- 解釈によって結果が大きく変わり、合理的な前提を選べない場合だけ、元Issueへ確認事項を1回コメントする
-- 確認が必要な場合はレポートやPull Requestを作成しない
+- 計画に明記された目的、対象、期間、地域、比較軸、対象外を勝手に変更しない
+- 検索語の表記揺れや追加の裏取りなど、計画達成に必要な軽微な細分化は実施してよい
+- 計画からの軽微な変更や、実行できなかった項目はレポートに明記する
+- 解釈によって結果が大きく変わる不足事項が見つかった場合は、元Issueへ確認事項を1回コメントする
+- 人間の再確認が必要な場合は、レポートやPull Requestを作成しない
 
 ## 調査品質
 
@@ -180,11 +192,13 @@ Issue本文を取得できない場合は推測で補わず、`missing_data`で�
 依頼内容、採用した前提、GitHub上での調査方法、検索条件などの付帯情報は後半に配置してください。
 
 調査情報には、調査日時、元Issue番号、使用した主要検索条件を含めてください。
+依頼内容と採用した前提には、承認済み計画の要約、承認操作を行ったユーザー、計画からの変更点を含めてください。
 
 ## Pull Request
 
 - タイトルは調査テーマが分かる簡潔な日本語にする
 - 本文に元Issueへの参照、調査概要、主要な結論、確認してほしい点を記載する
+- 本文に承認済み計画に基づく調査であることを記載する
 - Draft Pull Requestとして作成する
 - レポート以外の変更が含まれていないことを確認する
 - シェル実行は利用できないため、Draft Pull Request作成はsafe outputsの`create_pull_request`に委ねる

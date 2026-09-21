@@ -354,3 +354,70 @@ SearXNG標準のrobots.txtが検索クエリを拒否するため、`searxng-fet
 - Safe Outputsの処理
 - コンテナーの停止
 - `pre_activation`、`activation`、`agent`、`detection`、`safe_outputs`、`conclusion`の全ジョブ
+
+## 2026-09-21
+
+### 調査依頼を計画と承認の二段階へ変更
+
+新しく作成されたIssueから直ちにWeb調査を始めず、Copilotが詳細な調査計画を作成し、人間が承認してから本調査を開始する構成へ変更しました。
+
+追加したAgentic Workflow:
+
+```text
+.github/workflows/research-plan.md
+.github/workflows/research-plan.lock.yml
+```
+
+`Research Planning`は新規Issueのタイトルと本文から、調査目的、想定読者、対象期間、地域、論点、比較軸、優先する情報源、最新情報の必要性、検索クエリ候補、対象外、未確定事項、完了条件を整理します。
+
+作成した計画は、元のIssue本文を削除せず、`auto-aw-research-plan`マーカー内へ追記します。計画を作成できた場合は`research-plan-ready`ラベルを付けます。情報が不足して有効な計画を作成できない場合は`research-needs-info`ラベルを付けます。
+
+計画作成段階では、Web検索、外部URLの取得、レポートファイルの作成、Pull Requestの作成を行わない構成にしました。
+
+### Web Researchを人間の承認後だけ起動するよう変更
+
+`Web Research`のトリガーを新規Issueの`opened`イベントから、`research-approved`ラベルの`labeled`イベントへ変更しました。
+
+本調査を開始する条件:
+
+- 人間が`research-approved`ラベルを付けている
+- `research-plan-ready`ラベルが存在する
+- Issue本文に`auto-aw-research-plan`マーカーで囲まれた計画が存在する
+
+本調査中はIssueをロックし、承認済み計画が実行中に変更されないようにしました。本調査は承認済み計画を実行範囲として扱い、計画の目的、対象、期間、地域、比較軸、対象外を勝手に変更しません。
+
+SearXNGサービス、MCP Fetch、ホストネットワーク、robots.txt対応は本調査側に維持しました。承認済み計画で最新情報、幅広いURL探索、比較対象の発見が必要な場合にSearXNGを使用し、指定URLだけを確認する計画では`web-fetch`による確認を優先します。
+
+### 承認用ラベルを作成
+
+GitHubリポジトリへ次のラベルを作成しました。
+
+```text
+research-plan-ready
+research-approved
+research-needs-info
+```
+
+`research-approved`は人間による本調査の実行承認を示すため、計画作成エージェントが付与できない構成にしました。
+
+### 二段階ワークフローの文書と生成ファイルを更新
+
+次の文書を二段階運用に合わせて更新しました。
+
+```text
+.github/copilot-instructions.md
+README.md
+reports/README.md
+```
+
+両Agentic Workflowをコンパイルして生成lockファイルを更新し、次の検証を実行しました。
+
+```powershell
+gh aw compile research-plan --approve --actionlint
+gh aw compile web-research --approve --actionlint
+gh aw validate research-plan --strict
+gh aw validate web-research --strict
+git diff --check
+```
+
+両ワークフローのコンパイル、Actionlint、strict検証は、エラーと警告なしで成功しました。
