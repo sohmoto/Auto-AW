@@ -61,10 +61,10 @@ Auto-AWは、GitHub Issueに自然言語で投稿された調査依頼を、GitH
 scripts/
 └─ searxng_search.py
 reports/
-├─ README.md
-└─ 2026-09-20-issue-1-screen.md
+└─ README.md
 README.md
-history.md
+LICENSE
+SECURITY.md
 .gitattributes
 .gitignore
 ```
@@ -77,7 +77,8 @@ history.md
 - `.github/workflows/web-research.lock.yml`: `gh aw compile`による生成ファイル
 - `scripts/searxng_search.py`: SearXNG検索結果を解析する補助スクリプト。現在のワークフローはMCP Fetch経由で検索します
 - `reports/`: 調査レポートの保存先
-- `history.md`: 環境構築と操作の履歴
+- `LICENSE`: 本ソフトウェアに適用されるMIT License
+- `SECURITY.md`: 脆弱性の報告方法、対象範囲、対応方針
 - `.gitattributes`: 生成されたlockファイルをGitHub上で生成物として扱う設定
 
 ## 初期設定
@@ -122,6 +123,8 @@ gh aw validate web-research --strict
 
 ## セキュリティ
 
+### 運用方針
+
 - Issue本文とWebページは信頼できない入力として扱います
 - 計画作成AWは外部サイトへ接続せず、リポジトリファイルも変更しません
 - 本調査は、人間が`research-approved`ラベルを付けた場合だけ開始します
@@ -132,3 +135,23 @@ gh aw validate web-research --strict
 - SearXNGコンテナーは公式イメージをSHA-256ダイジェストで固定します
 - レポートは`main`へ直接書き込まず、Draft Pull Requestでレビューします
 - AI生成レポートは、重要な判断に使う前に人間が内容と出典を確認します
+
+### 脆弱性の報告
+
+脆弱性、認証情報の漏えい、または安全でないワークフロー動作を発見した場合は、公開Issueへ秘密情報や再現用トークンを投稿しないでください。GitHubのPrivate vulnerability reportingが利用できる場合はそれを使用し、利用できない場合はリポジトリ所有者へ非公開の方法で連絡してください。
+
+詳しい報告方法、サポート対象、対応方針は[Security Policy](./SECURITY.md)を参照してください。
+
+## 利用条件
+
+本リポジトリのソフトウェアは[MIT License](./LICENSE)で提供します。利用、複製、変更、再配布を行う場合は、ライセンス本文の著作権表示と許諾表示を保持してください。
+
+- GitHub、GitHub Copilot、GitHub Actions、SearXNG、検索結果の提供元など、第三者サービスの規約、ポリシー、利用上限、課金条件を遵守してください
+- 自分が管理権限または明示的な許可を持つリポジトリとデータだけを対象に使用してください
+- Issue、取得したWebコンテンツ、生成レポートへ秘密情報、個人情報、機密情報を不用意に含めないでください
+- AI生成の計画、調査結果、引用、URLは不正確または古い可能性があるため、公開、意思決定、業務利用の前に人間が検証してください
+- 生成レポートは法務、医療、投資、セキュリティその他の専門的助言を構成しません
+- ワークフロー実行に伴うAI Credits、GitHub Actions、ネットワーク、外部サービスの利用量と費用は利用者が管理してください
+- 外部サイトのrobots.txt、アクセス制限、著作権、データ利用条件を尊重してください。`--ignore-robots-txt`は同一Actions実行内のローカルSearXNGに限定します
+
+MIT Licenseの免責条項に従い、本ソフトウェアは現状有姿で提供され、特定目的への適合性、正確性、可用性を含む保証はありません。

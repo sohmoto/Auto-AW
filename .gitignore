@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Local-only documentation
+history.md
+
 # Temporary files
 *.log
 *.tmp
@@ -10,4 +13,3 @@
 # Operating system files
 .DS_Store
 Thumbs.db
-
