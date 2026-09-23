@@ -9,6 +9,8 @@ Auto-AWのローカルリポジトリで実際に作成、設定、更新した�
 
 ### GitHubリポジトリとの同期
 
+> **指示プロンプト例:** Auto-AWのprivate repositoryと、現在のローカルフォルダーを同期してください。
+
 空のローカルフォルダーへ、GitHubのprivate repositoryをcloneしました。
 
 ```powershell
@@ -31,6 +33,8 @@ clone時点では、ローカルとリモートの両方にコミットおよび
 
 ### GitHub CLIの更新
 
+> **指示プロンプト例:** この環境のGitHub CLIを最新の安定版へ更新してください。
+
 wingetでインストールされていたGitHub CLIを更新しました。
 
 ```text
@@ -44,6 +48,8 @@ winget upgrade --id GitHub.cli --exact --silent --accept-package-agreements --ac
 ```
 
 ### GitHub Agentic Workflows CLIの更新
+
+> **指示プロンプト例:** GitHub Agentic Workflows CLIを更新し、このリポジトリで利用できることを確認してください。
 
 `github/gh-aw`拡張を更新しました。
 
@@ -66,6 +72,8 @@ gh aw doctor --repo akkoike/Auto-AW --dir .
 ## 2026-09-20
 
 ### リポジトリ構成の作成
+
+> **指示プロンプト例:** Issueを起点にWebを調査し、Markdownレポートを作成するAgentic Workflowに必要な最低限のファイル構成を作成してください。
 
 次のファイルとディレクトリを作成しました。
 
@@ -99,6 +107,8 @@ history.md
 
 ### Web Researchワークフローの作成
 
+> **指示プロンプト例:** GitHub Issueの依頼をCopilotがWeb調査し、日本語MarkdownレポートをDraft Pull Requestとして提出するワークフローを作成してください。
+
 Copilotエンジン用のワークフローテンプレートを生成しました。
 
 ```powershell
@@ -128,11 +138,15 @@ gh aw new web-research --engine copilot
 
 ### Issue本文の安全な取得方式への変更
 
+> **指示プロンプト例:** strict modeに適合するよう、未信頼のIssue本文を安全に取得する方式へ修正してください。
+
 Issue本文を`${{ github.event.issue.body }}`でプロンプトへ直接展開する構成は、未信頼入力に関する厳格検証で拒否されました。
 
 Issue番号だけを許可された式で受け取り、GitHub MCPの読み取り専用`issue_read`ツールで本文を取得する方式へ変更しました。
 
 ### Copilot共通指示の作成
+
+> **指示プロンプト例:** 調査品質、レポート形式、変更可能な範囲、プロンプトインジェクション対策をCopilot共通指示として定義してください。
 
 `.github/copilot-instructions.md`を作成し、次の内容を設定しました。
 
@@ -155,6 +169,8 @@ Issue番号だけを許可された式で受け取り、GitHub MCPの読み取�
 
 ### レポート基準の作成
 
+> **指示プロンプト例:** `reports/`へ作成する調査レポートの命名規則、必須構成、出典基準を定義してください。
+
 `reports/README.md`を作成し、次の基準を設定しました。
 
 - ファイル名を`YYYY-MM-DD-issue-<Issue番号>-<スラッグ>.md`形式に統一
@@ -166,6 +182,8 @@ Issue番号だけを許可された式で受け取り、GitHub MCPの読み取�
 - Draft Pull Requestを人間が確認してからマージ
 
 ### Web検索をTavily keyless接続へ変更
+
+> **指示プロンプト例:** APIキーや有料アカウントを使わずにWeb検索できるよう、Tavilyのkeyless MCP接続へ変更してください。
 
 Web検索とWebページ本文の抽出には、TavilyのリモートMCPを使用する構成にしました。
 
@@ -194,6 +212,8 @@ mcp-servers:
 
 ### READMEの作成と更新
 
+> **指示プロンプト例:** このリポジトリの目的、Issueからレポート作成までの利用方法、初期設定、セキュリティ方針をREADMEへ記載してください。
+
 ルートの`README.md`を作成し、次の内容を記載しました。
 
 - GitHub MobileまたはGitHub WebからIssueを作成する利用方法
@@ -207,6 +227,8 @@ mcp-servers:
 Tavily keyless接続への変更に合わせ、Tavilyアカウント、APIキー、Repository Secretが不要である内容へ更新しました。
 
 ### Git属性と除外設定の作成
+
+> **指示プロンプト例:** 生成済みlockファイルを識別し、秘密情報や一時ファイルをGit管理から除外する設定を追加してください。
 
 `.gitattributes`を作成し、コンパイル済みワークフローをGitHub上で生成物として扱うよう設定しました。
 
@@ -226,6 +248,8 @@ Tavily keyless接続への変更に合わせ、Tavilyアカウント、APIキー
 `.env.example`は除外対象から外しました。
 
 ### ワークフローのコンパイル
+
+> **指示プロンプト例:** 作成したWeb Research Agentic Workflowをコンパイルし、実行用lockファイルを生成してください。
 
 次のコマンドでワークフローをコンパイルしました。
 
@@ -249,6 +273,8 @@ strict: true
 
 ### 最終検証
 
+> **指示プロンプト例:** ワークフローをstrict modeで最終検証し、警告や古いSecret参照が残っていないことを確認してください。
+
 Tavily keyless接続への変更後、次の厳格検証を実行しました。
 
 ```powershell
@@ -271,6 +297,8 @@ web-research | copilot | compiled: Yes
 `.github/`以下に`TAVILY_API_KEY`および`secrets.TAVILY_API_KEY`への参照が残っていないことを確認しました。
 
 ### Web検索をSearXNGへ変更
+
+> **指示プロンプト例:** 外部APIキーを不要にするため、Web検索基盤をGitHub Actions実行中だけ起動するローカルSearXNGへ変更してください。
 
 Tavily keyless接続を削除し、IssueごとのGitHub Actions実行中だけ公式SearXNGコンテナーを起動する構成へ変更しました。
 
@@ -299,11 +327,15 @@ scripts/searxng_search.py
 
 ### SearXNG接続先を修正
 
+> **指示プロンプト例:** GitHub Actions上のSearXNGサービスコンテナーへ確実に接続できるよう、接続先設定を修正してください。
+
 GitHub Actionsのサービスコンテナーへ接続できるよう、ワークフローと検索ヘルパーのSearXNG接続先を`http://localhost:8080`へ統一しました。
 
 検索ヘルパーの許可URLにも`http://localhost:8080`を設定しました。
 
 ### レポート構成の表示順を変更
+
+> **指示プロンプト例:** レポートを開いたときに主要な結果を先に確認できるよう、結論と調査結果を上段へ移動してください。
 
 レポートの主要な結果を先に確認できるよう、ワークフロー、Copilot共通指示、レポート基準の構成順を統一して変更しました。
 
@@ -324,6 +356,8 @@ GitHub Actionsのサービスコンテナーへ接続できるよう、ワーク
 
 ### SearXNG用MCP Gateway設定を修正
 
+> **指示プロンプト例:** 現在のMCP Gateway仕様に合わせてSearXNG用MCP Fetchサーバーの設定を修正し、Actionsとコンテナーが起動できることを確認してください。
+
 MCP Gateway v0.4.18の設定スキーマに合わせて、SearXNG検索結果を取得する`searxng-fetch`サーバーの設定を修正しました。
 
 変更内容:
@@ -337,11 +371,15 @@ MCP Gateway v0.4.18の設定スキーマに合わせて、SearXNG検索結果を
 
 ### ローカルSearXNG検索のrobots.txt制限に対応
 
+> **指示プロンプト例:** ローカルSearXNGの検索URLがrobots.txtで拒否される問題を、安全な範囲に限定して回避してください。
+
 SearXNG標準のrobots.txtが検索クエリを拒否するため、`searxng-fetch`のエントリーポイント引数に`--ignore-robots-txt`を追加しました。
 
 この設定は、同じGitHub Actions実行内で一時起動するローカルSearXNGの検索結果取得に限定しています。Docker実行引数の`--network host`とは分離して設定しました。
 
 ### SearXNG対応後のワークフロー正常終了を確認
+
+> **指示プロンプト例:** SearXNG対応後のActions実行について、コンテナー起動からSafe Outputsまで正常終了したか最終確認してください。
 
 コミット`19dfd75bd68d10d36d96baf6928ee9e35fb8b503`を使用したGitHub Actions実行`35523728716`が正常終了したことを確認しました。
 
@@ -358,6 +396,8 @@ SearXNG標準のrobots.txtが検索クエリを拒否するため、`searxng-fet
 ## 2026-09-21
 
 ### 調査依頼を計画と承認の二段階へ変更
+
+> **指示プロンプト例:** 人間が簡易Issueを作成するとCopilotが詳細な調査計画を追記し、人間が承認した後に本調査を開始する二段階フローへ変更してください。
 
 新しく作成されたIssueから直ちにWeb調査を始めず、Copilotが詳細な調査計画を作成し、人間が承認してから本調査を開始する構成へ変更しました。
 
@@ -376,6 +416,8 @@ SearXNG標準のrobots.txtが検索クエリを拒否するため、`searxng-fet
 
 ### Web Researchを人間の承認後だけ起動するよう変更
 
+> **指示プロンプト例:** Web Researchは、計画を確認した人間が`research-approved`ラベルを付けた場合だけ起動するようにしてください。
+
 `Web Research`のトリガーを新規Issueの`opened`イベントから、`research-approved`ラベルの`labeled`イベントへ変更しました。
 
 本調査を開始する条件:
@@ -390,6 +432,8 @@ SearXNGサービス、MCP Fetch、ホストネットワーク、robots.txt対応
 
 ### 承認用ラベルを作成
 
+> **指示プロンプト例:** 計画準備完了、人間による承認、追加情報待ちを区別するGitHubラベルを作成してください。
+
 GitHubリポジトリへ次のラベルを作成しました。
 
 ```text
@@ -401,6 +445,8 @@ research-needs-info
 `research-approved`は人間による本調査の実行承認を示すため、計画作成エージェントが付与できない構成にしました。
 
 ### 二段階ワークフローの文書と生成ファイルを更新
+
+> **指示プロンプト例:** 二段階の調査フローに合わせて関連文書と生成lockファイルを更新し、両ワークフローを検証してください。
 
 次の文書を二段階運用に合わせて更新しました。
 
@@ -423,6 +469,8 @@ git diff --check
 両ワークフローのコンパイル、Actionlint、strict検証は、エラーと警告なしで成功しました。
 
 ### Research Planningのタイムアウトを修正
+
+> **指示プロンプト例:** Issueのプランニングがタイムアウトした原因を究明し、MCPツールを正しく呼び出せるよう問題箇所を修正してください。
 
 最初の`Research Planning`実行では、MCP Gateway、GitHub MCP Server、Safe Outputs MCP Serverは正常に起動していましたが、Copilot AgentにMCP CLIラッパーを実行する権限がありませんでした。
 
@@ -453,6 +501,8 @@ gh aw validate research-plan --strict
 ```
 
 ### Copilot認証をActions標準のGITHUB_TOKENへ移行
+
+> **指示プロンプト例:** Fine-Grained PATを今後使わない方針とし、Copilot CLIの認証をActions標準の短期`GITHUB_TOKEN`へ安全に移行してください。
 
 Copilot CLIがGitHub Actionsの組み込み`GITHUB_TOKEN`へ対応したため、長期のfine-grained PATをCopilot認証に使用しない構成へ変更しました。
 
@@ -485,6 +535,8 @@ gh aw validate web-research --strict
 
 ### GITHUB_TOKEN移行後の実行確認
 
+> **指示プロンプト例:** 移行後にIssueを実行したので、Planningからレポート作成まで成功し、PATを削除できる状態か確認してください。
+
 移行コミット`814f753d843b1325ebf823c3f15c12166ad25902`を使用して、Issue #24「GitHub Copilot調査」でエンドツーエンドの動作確認を行いました。
 
 実行結果:
@@ -500,6 +552,8 @@ gh aw validate web-research --strict
 動作確認後、Repository Secretの`COPILOT_GITHUB_TOKEN`を削除しました。`gh secret list --repo akkoike/Auto-AW`でRepository Secretが0件であることを確認しました。元のfine-grained PATはGitHubアカウントのDeveloper settingsからユーザーが削除しました。
 
 ### GitHub Copilot技術動向レポートを同期
+
+> **指示プロンプト例:** リモート側で作成・マージされた調査レポートを、ローカルの`main`にも同期してください。
 
 Pull Request #25で作成された次のレポートを、`origin/main`からローカル`main`へfast-forwardで同期しました。
 
